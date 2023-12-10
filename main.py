@@ -40,7 +40,7 @@ def listen_for_wake_word(audio):
     global listening_for_wake_word
     with open("wake_detect.wav", "wb") as f:
         f.write(audio.get_wav_data())
-    result = tiny_model.transcribe('wake_detect.wav', fp16=False)
+    result = tiny_model.transcribe('wake_detect.wav')
     text_input = result['text']
     if wake_word in text_input.lower().strip():
         print("Wake word detected. Please speak your prompt to GPT4All.")
@@ -52,7 +52,7 @@ def prompt_gpt(audio):
     try:
         with open("prompt.wav", "wb") as f:
             f.write(audio.get_wav_data())
-        result = base_model.transcribe('prompt.wav', fp16=False)
+        result = base_model.transcribe('prompt.wav')
         prompt_text = result['text']
         if len(prompt_text.strip()) == 0:
             print("Empty prompt. Please speak again.")
@@ -77,7 +77,7 @@ def callback(recognizer, audio):
 
 def start_listening():
     with source as s:
-        r.adjust_for_ambient_noise(s, duration=1)
+        r.adjust_for_ambient_noise(s, duration=2)
     print('\nSay', wake_word, 'to wake me up. \n')
     r.listen_in_background(source, callback)
     while True:

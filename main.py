@@ -9,15 +9,15 @@ import time
 import os
 import torch
 
-wake_word = 'jarvis'
+wake_word = 'can'
 model = GPT4All("E:/Projects/Assistant/AI Models/gpt4all-falcon-q4_0.gguf", allow_download=False)
 r = sr.Recognizer()
 tiny_model_path = os.path.expanduser('C:/Users/ASUS/.cache/whisper/tiny.pt')
 base_model_path = os.path.expanduser('C:/Users/ASUS/.cache/whisper/base.pt')
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-tiny_model = whisper.load_model(tiny_model_path).to(device)
-base_model = whisper.load_model(base_model_path).to(device)
+tiny_model = whisper.load_model(tiny_model_path)
+base_model = whisper.load_model(base_model_path)
 
 listening_for_wake_word = True
 
@@ -43,7 +43,7 @@ def listen_for_wake_word(audio):
     global listening_for_wake_word
     with open("wake_detect.wav", "wb") as f:
         f.write(audio.get_wav_data())
-    result = tiny_model.transcribe('wake_detect.wav', language= 'en')
+    result = tiny_model.transcribe('wake_detect.wav', language= 'en', fp16=False)
     text_input = result['text']
     if wake_word in text_input.lower().strip():
         print("Wake word detected. Please speak your prompt to GPT4All.")
@@ -55,7 +55,7 @@ def prompt_gpt(audio):
     try:
         with open("prompt.wav", "wb") as f:
             f.write(audio.get_wav_data())
-        result = base_model.transcribe('prompt.wav', language= 'en')
+        result = base_model.transcribe('prompt.wav', language= 'en', fp16=False)
         prompt_text = result['text']
         if len(prompt_text.strip()) == 0:
             print("Empty prompt. Please speak again.")

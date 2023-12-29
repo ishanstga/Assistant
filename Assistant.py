@@ -22,6 +22,7 @@ audio_array = generate_audio(text_prompt)
 '''
 #------------------------------------------------------------------------------------------------------------
 
+# pre define varriables--------------------------------------------------------------------------------------
 base_model_path = os.path.expanduser('C:/Users/ASUS/.cache/whisper/base.pt')
 tiny_model_path = os.path.expanduser('C:/Users/ASUS/.cache/whisper/tiny.pt')
 model = whisper.load_model(base_model_path)
@@ -36,11 +37,8 @@ engine.setProperty('rate',145)
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
 
-A = open("APIkey.txt", "r")
-API = A.read()
-elevenlabs.set_api_key(API)
-
 wake_word = "alex"
+#------------------------------------------------------------------------------------------------------------
 
 def elevanlabs(text):
     naturalvoice = elevenlabs.Voice(voice_id="XB0fDUnXU5powFXDhCwa", settings=elevenlabs.VoiceSettings(stability=1,similarity_boost=0.95))
@@ -55,25 +53,23 @@ def start_listening():
     try:
         with mic as source:
             listener.adjust_for_ambient_noise(source, duration=2)
-            print("listening...")
+            print("I'm listening Sir...")
             uservoice = listener.listen(mic) 
             return uservoice
     except:
-        print("Mic error")
+        print("Mic error") # Test Only
         pass
 
 def get_user_command_as_text(voice):
     # Convert Voice To Text
-    with open("english.wav", "wb") as f:
+    with open("userVoice.wav", "wb") as f:
         f.write(voice.get_wav_data())
-    result = model.transcribe("english.wav", language= 'en', fp16=False)
+    result = model.transcribe("userVoice.wav", language= 'en', fp16=False)
     print(result["text"])
     promptText = result["text"]
     promptText = promptText.lower()
     return promptText             
     
-      
-
 def render_in_gpt4all(text):
     output = gptModel.generate(text, max_tokens=200)
     print(output)
